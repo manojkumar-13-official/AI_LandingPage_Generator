@@ -191,7 +191,7 @@ Output constraints:
       },
       {
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer`,
           "Content-Type": "application/json",
           "HTTP-Referer": "http://localhost:5173",
         },
