@@ -142,12 +142,19 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+
+// TODO: Replace with your OpenRouter API key.
+
+// TODO: Replace with your site's URL or name.
+const YOUR_SITE_URL = "http://localhost:5173";
+
 const Home = () => {
   const [idea, setIdea] = useState("");
   const [category, setCategory] = useState("AI SaaS");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [copy, setCopy] = useState(false);
+
   const copyCode = () => {
     setCopy(true);
     navigator.clipboard.writeText(result);
@@ -156,16 +163,25 @@ const Home = () => {
   const handleGenerate = async () => {
     setLoading(true);
     setResult("");
+    setCopy(false);
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        model: "openai/gpt-3.5-turbo",
+    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "YOUR_API_KEY_HERE") {
+      setResult(
+        '<div class="text-red-600">Error: Missing OpenRouter API key. Please replace "YOUR_API_KEY_HERE" in Home.jsx with your actual key.</div>'
+      );
+      setLoading(false);
+      return;
+    }
 
-        messages: [
-          {
-            role: "user",
-            content: `Create a mini-site for a ${category} product named "${idea}".
+    try {
+      const response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: "openai/gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: `Create a mini-site for a ${category} product named "${idea}".
 
 Requirements:
 - Landing page: bold hero heading with the product name, concise subheading, 3 feature cards (icon, title, short description), a primary animated CTA button.
@@ -186,22 +202,29 @@ Output constraints:
 - Prefer semantic HTML tags and proper aria attributes where useful.
 
             Use  plain HTML and Tailwind CSS. Return only valid HTML.`,
-          },
-        ],
-      },
-      {
-        headers: {
-          Authorization: `Bearer`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:5173",
+            },
+          ],
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": YOUR_SITE_URL,
+          },
+        }
+      );
 
-    console.log(response.data);
-
-    setResult(response.data.choices[0].message.content);
-    setLoading(false);
+      setResult(response.data.choices[0].message.content);
+    } catch (error) {
+      console.error("API Error:", error);
+      const errorMessage =
+        error.response?.status === 401
+          ? "Authentication failed. Please check if your OpenRouter API key is correct and active."
+          : `An error occurred: ${error.message}. Check the console for more details.`;
+      setResult(`<div class="text-red-600">${errorMessage}</div>`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
