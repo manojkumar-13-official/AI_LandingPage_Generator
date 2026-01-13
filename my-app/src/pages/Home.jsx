@@ -144,7 +144,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 // TODO: Replace with your OpenRouter API key.
-
+const OPENROUTER_API_KEY = "<YOUR_API_KEY_HERE>";
 // TODO: Replace with your site's URL or name.
 const YOUR_SITE_URL = "http://localhost:5173";
 
